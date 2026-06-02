@@ -3,7 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>乘用车离合器设计与计算交互工具</title>
+<title>汽车膜片弹簧离合器设计计算工具</title>
+<!-- PDF渲染（无网络时自动退化为错误提示） -->
+<script>
+(function(){
+  var s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+  s.onerror=function(){ window._pdfJsFailed=true; };
+  document.head.appendChild(s);
+})();
+</script>
 <style>
   :root {
     --blue: #1a4a8a;
@@ -114,22 +123,7 @@
   .grading-table td { padding: 7px 8px; border: 1px solid var(--border); }
   .grading-table .score-col { text-align: center; font-weight: 700; min-width: 60px; }
 
-  /* ── 说明书评阅 ── */
-  .upload-zone { border: 2px dashed var(--border); border-radius: 8px; padding: 40px 20px; text-align: center; background: #f8faff; transition: all 0.3s; cursor: pointer; }
-  .upload-zone:hover { border-color: var(--blue-light); background: #f0f6ff; }
-  .upload-zone.dragover { border-color: var(--blue); background: #e8eef8; }
-  .upload-zone .icon { font-size: 48px; margin-bottom: 10px; }
-  .upload-zone .text { font-size: 14px; color: #666; }
-  .upload-zone .hint { font-size: 12px; color: #999; margin-top: 8px; }
-  canvas { border: 1px solid var(--border); border-radius: 5px; background: white; display: block; width: 100%; }
-  .upload-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
-  .file-chosen { font-size: 12px; color: #555; flex: 1; word-break: break-all; }
-  .grade-criteria { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 14px 0; }
-  .grade-criteria-item { background: #f0f6ff; border: 1px solid var(--border); border-radius: 8px; padding: 12px; text-align: center; }
-  .grade-criteria-item .pct { font-size: 28px; font-weight: 700; color: var(--blue); }
-  .grade-criteria-item .lbl { font-size: 12px; color: #555; margin-top: 4px; }
-  .grade-criteria-item .desc { font-size: 11px; color: #888; margin-top: 2px; line-height: 1.4; }
-  .ai-note { background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #7a5a00; line-height: 1.6; margin-bottom: 12px; }
+
 
   /* ── 教师管理 ── */
   .stats-card { background: linear-gradient(135deg, #1a3560 0%, #2d6ec0 100%); color: white; padding: 20px; border-radius: 10px; margin-bottom: 16px; }
@@ -149,6 +143,30 @@
   .btn-danger { background: #c0392b; color: white; }
   .btn-danger:hover { background: #a02a1f; }
 
+  /* ── 说明书评阅专用样式 ── */
+  .upload-zone { border: 2px dashed var(--border); border-radius: 8px; padding: 40px 20px; text-align: center; background: #f8faff; transition: all 0.3s; cursor: pointer; }
+  .upload-zone:hover { border-color: var(--blue-light); background: #f0f6ff; }
+  .upload-zone.dragover { border-color: var(--blue); background: #e8eef8; }
+  .upload-zone .icon { font-size: 48px; margin-bottom: 10px; }
+  .upload-zone .text { font-size: 14px; color: #666; }
+  .upload-zone .hint { font-size: 12px; color: #999; margin-top: 8px; }
+  .upload-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+  .file-chosen { font-size: 12px; color: #555; flex: 1; word-break: break-all; }
+  .grade-criteria { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin: 14px 0; }
+  .grade-criteria-item { background: #f0f6ff; border: 1px solid var(--border); border-radius: 8px; padding: 12px; text-align: center; }
+  .grade-criteria-item .pct { font-size: 28px; font-weight: 700; color: var(--blue); }
+  .grade-criteria-item .lbl { font-size: 12px; color: #555; margin-top: 4px; }
+  .grade-criteria-item .desc { font-size: 11px; color: #888; margin-top: 2px; line-height: 1.4; }
+  .rg-header { background: linear-gradient(135deg,#1a3560,#2d6ec0); color: white; padding: 16px 20px; border-radius: 8px; margin-bottom: 16px; display: flex; align-items: center; gap: 14px; }
+  .rg-header .rg-icon { font-size: 36px; }
+  .rg-header h3 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .rg-header p { font-size: 12px; opacity: .85; }
+  .ai-note { background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #7a5a00; line-height: 1.6; margin-bottom: 12px; }
+  .ai-loading { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 40px 20px; }
+  .ai-loading .spinner { width: 48px; height: 48px; border: 4px solid #e0ecff; border-top: 4px solid var(--blue-light); border-radius: 50%; animation: spin .9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (max-width: 700px) { .grade-criteria { grid-template-columns: 1fr; } }
+
   @media (max-width: 700px) {
     .grid2, .grid3 { grid-template-columns: 1fr; }
     .tabs { gap: 0; }
@@ -158,14 +176,7 @@
   }
 user-select: none
 </style>
-<script>
-(function(){
-  var s=document.createElement('script');
-  s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
-  s.onerror=function(){ window._pdfJsFailed=true; };
-  document.head.appendChild(s);
-})();
-</script>
+
 </head>
 <body>
 
@@ -174,7 +185,7 @@ user-select: none
   <div class="login-box">
     <h2>🎓 学生身份验证</h2>
     <div class="desc">
-      欢迎使用乘用车离合器设计计算工具！<br>
+      欢迎使用汽车膜片弹簧离合器设计计算工具！<br>
       请输入您的学号和姓名开始设计。完成后系统将自动评分并生成报告。
     </div>
     <div class="login-field">
@@ -213,8 +224,8 @@ user-select: none
 
 <div class="app-header">
   <div>
-    <h1>🚗 汽车膜片弹簧离合器设计与计算工具</h1>
-    <div class="sub">基于《汽车设计》第6版（闵海涛、王建华）— 智能评分教学版 📱移动端兼容</div>
+    <h1>🚗 汽车膜片弹簧离合器设计计算工具·广西大学 ·车辆工程专业 ·《汽车设计》课程教学团队</h1>
+    <div class="sub">《汽车设计》第6版（闵海涛、王建华）—课程设计版 📱移动端兼容</div>
   </div>
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
     <div class="teacher-btn" onclick="openTeacherLogin()">👨‍🏫 教师管理</div>
@@ -257,6 +268,11 @@ user-select: none
           <option value="medium">中型商用车（6t~14t）</option>
           <option value="heavy">重型商用车（ma>14t）</option>
         </select>
+      </div>
+      <div class="field">
+        <label>发动机起步转速 ne</label>
+        <input type="number" id="ne_start" value="2000" step="100" min="500" max="4000">
+        <div class="unit">r/min &nbsp;|&nbsp; 参考值：乘用车取 2000 r/min，商用车取 1500 r/min</div>
       </div>
     </div>
     <div class="btn-bar"><button class="btn btn-primary" onclick="calcAll()">✅ 更新所有计算</button></div>
@@ -333,7 +349,7 @@ user-select: none
     <div id="basicResult" style="margin-top:14px"></div>
     <div style="margin-top:10px">
       <div class="card-title" style="font-size:13px;margin-top:10px">摩擦片标准系列参考（表2-4，单片双面）</div>
-      <div class="info-box" style="margin-bottom:6px">数据来源：《汽车设计》第5版表2-4。蓝色高亮行为当前设计所取尺寸（与上方D、d输入匹配时自动标出）。</div>
+      <div class="info-box" style="margin-bottom:6px">数据来源：《汽车设计》第6版表2-4。蓝色高亮行为当前设计所取尺寸（与上方D、d输入匹配时自动标出）。</div>
       <table class="result-table" id="discSeriesTable">
         <tr>
           <th>外径D(mm)</th><th>内径d(mm)</th><th>c=d/D</th>
@@ -490,7 +506,7 @@ user-select: none
     <div class="card-title"><span class="icon">🔩</span>扭转减振器参数设计</div>
     <div class="grid3">
       <div class="field"><label>极限转矩系数（乘用车=2.0）</label><input type="number" id="Tj_coef" value="2.0" step="0.1"></div>
-      <div class="field"><label>扭转刚度 kδ (N·m/rad)</label><input type="number" id="k_delta" value="2300"></div>
+      <div class="field"><label>扭转刚度 kδ (N·m/rad)&nbsp;<span style="color:var(--ok);font-size:11px;font-weight:400">参考上限 ≤ 13×Tⱼ = <span id="kd_ref_hint">—</span> N·m/rad</span></label><input type="number" id="k_delta" value="2300"></div>
       <div class="field"><label>阻尼转矩系数（0.06～0.17）</label><input type="number" id="Tu_coef" value="0.12" step="0.01"></div>
       <div class="field"><label>预紧转矩系数（0.05～0.15）</label><input type="number" id="Tn_coef" value="0.10" step="0.01"></div>
       <div class="field"><label>R₀系数（0.60～0.75）</label><input type="number" id="R0_coef" value="0.60" step="0.05"></div>
@@ -630,7 +646,7 @@ user-select: none
   <div class="card">
     <div class="card-title"><span class="icon">📋</span>从动盘毂矩形花键尺寸系列（表2-8）</div>
     <div class="info-box" style="margin-bottom:8px">
-      数据来源：《汽车设计》第5版表2-8（矩形花键 GB/T 1144）。<strong>点击任意行自动填入上方输入框。</strong>
+      数据来源：《汽车设计》第6版表2-8（矩形花键 GB/T 1144）。<strong>点击任意行自动填入上方输入框。</strong>
       蓝色高亮行为当前输入参数对应的规格。
     </div>
     <table class="result-table" id="splineSeriesTable" style="cursor:pointer">
@@ -734,14 +750,15 @@ user-select: none
   </div>
 </div>
 
-<!-- TAB 9: 说明书评阅 -->
+
+<!-- TAB 9: 说明书离线评阅 -->
 <div class="content" id="tab9">
 
-  <div style="background:linear-gradient(135deg,#1a3560,#2d6ec0);color:white;padding:16px 20px;border-radius:8px;margin-bottom:16px;display:flex;align-items:center;gap:14px">
-    <div style="font-size:36px">📝</div>
+  <div class="rg-header">
+    <div class="rg-icon">📝</div>
     <div>
-      <h3 style="font-size:18px;font-weight:700;margin-bottom:4px">设计说明书离线评阅系统</h3>
-      <p style="font-size:12px;opacity:.85">上传学生 .pdf 说明书，系统自动提取文本，与本工具计算值逐项比对，完全离线运行</p>
+      <h3>设计说明书离线评阅系统</h3>
+      <p>上传学生 .pdf 说明书，系统自动提取文本，与本工具计算值逐项比对，完全离线运行</p>
     </div>
   </div>
 
@@ -760,7 +777,7 @@ user-select: none
       <div class="grade-criteria-item">
         <div class="pct">50%</div>
         <div class="lbl">数据符合度</div>
-        <div class="desc">9项核心参数（Tc、β、D、d、c、vD、踏板力Ff等）与工具计算值比对，允许±8%误差</div>
+        <div class="desc">9项核心参数（Tc、β、D、d、c、vD、w、Ff、S）与工具计算值比对，允许±8%误差</div>
       </div>
       <div class="grade-criteria-item">
         <div class="pct">30%</div>
@@ -779,7 +796,7 @@ user-select: none
     <div class="card-title"><span class="icon">📂</span>上传设计说明书（PDF 格式）</div>
     <div class="upload-zone" onclick="document.getElementById('reportFile').click()" id="reportUploadZone">
       <div class="icon">📄</div>
-      <div class="text">点击选择说明书文件（PDF）</div>
+      <div class="text">点击选择说明书 PDF 文件</div>
       <div class="hint">.pdf 格式 · 完全离线处理 · 文件不会上传</div>
     </div>
     <input type="file" id="reportFile" accept=".pdf" style="display:none" onchange="onReportFileSelected(event)">
@@ -805,6 +822,8 @@ user-select: none
     </div>
   </div>
 </div>
+
+
 
 <div id="exportArea" style="display:none"></div>
 
@@ -835,7 +854,7 @@ function switchTab(i) {
 }
 
 // ========== DISC SERIES TABLE (表2-4) ==========
-// [D, d] pairs from 《汽车设计》第5版 表2-4
+// [D, d] pairs from 《汽车设计》第6版 表2-4
 const DISC_SERIES = [
   [160, 100],[160, 110],
   [180, 115],[180, 125],
@@ -988,7 +1007,7 @@ function calcVerify() {
 
   // ---- Slip energy W ----
   // 简化公式: W = 0.5 * ma * v1²
-  const ne_start = 2000; // r/min
+  const ne_start = getN('ne_start') || 2000; // r/min（来自整车基本参数输入）
   const v1 = 2*Math.PI*ne_start/60 * r_w / (i1*i0); // m/s
   const W_simple = 0.5 * ma * v1 * v1;
 
@@ -1116,7 +1135,7 @@ function calcVerify() {
 // K = π·E·h·ln(R/r) / [6(1-μ²)(R₁-r₁)²]
 // b = (R-r)/(R₁-r₁)
 // F₁(λ) = K·λ·[(H-λb)(H-λb/2)+h²]
-const _E = 206000, _MU = 0.3;
+const _E = 210000, _MU = 0.3;
 function calcF1(lam, H, h, R, r, R1, r1) {
   if (lam <= 0) return 0;
   const K = Math.PI * _E * h * Math.log(R/r) / (6*(1-_MU*_MU)*(R1-r1)*(R1-r1));
@@ -1267,7 +1286,7 @@ function calcSpring() {
   // 输入参数
   const br = getN('br_spring') || (2 * Math.PI * r / getN('n_fingers'));
   const n_fin = getN('n_fingers') || 18;
-  const E_s = 206000, mu_s = 0.3;
+  const E_s = 210000, mu_s = 0.3;
 
   // 中性点半径 e（课本式2-27相关）
   const e = (R - r) / Math.log(R / r);
@@ -1283,7 +1302,7 @@ function calcSpring() {
   const phi_calc_rad = phi_f_rad < phi_P_rad ? phi_f_rad : phi_P_rad;
   const phi_label = phi_f_rad < phi_P_rad ? 'φf（φf < φP，用φf）' : 'φP（φf ≥ φP，用φP）';
 
-  // 式2-28：碟簧部分切向应力 σtB（教材第5版）
+  // 式2-28：碟簧部分切向应力 σtB（《汽车设计》第6版）
   // σtB = E/(1-μ²)/r × { (e-r)·φ²/2 − [(e-r)·α + h/2]·φ }
   // α 为圆锥底角（rad），φ 为取用转角（rad），r 为碟簧小端半径
   const lnRr2 = Math.log(R / r);
@@ -1299,9 +1318,8 @@ function calcSpring() {
   // 式2-31：当量应力 σjB = σrB - σtB（注意 σtB 为负值，相减等于相加绝对值）
   const sigma_jB = sigma_rB - sigma_tB;
 
-  const str_ok = sigma_jB >= 1500 && sigma_jB <= 1700;
-  const str_badge = sigma_jB < 1500 ? badge(false, '✗ 偏低') :
-                    sigma_jB <= 1700 ? badge(true, '✓ 合格') : badge(false, '✗ 超限');
+  const str_ok = sigma_jB <= 1700;
+  const str_badge = sigma_jB <= 1700 ? badge(true, '✓ 合格') : badge(false, '✗ 超限');
 
   // br 参考计算值
   const br_ref = 2 * Math.PI * r / n_fin;
@@ -1324,12 +1342,11 @@ function calcSpring() {
         <td><strong>${fmt(sigma_tB,1)}</strong></td><td>MPa</td></tr>
       <tr><td>分离指弯曲应力 σrB（式2-30）</td><td>6·F₂C·(r−rf) / (n·h²·br) = 6×${Math.round(F2C)}×(${fmt(r,3)}−${rf}) / (${n_fin}×${h}²×${fmt(br,2)})</td><td><strong>${fmt(sigma_rB,1)}</strong></td><td>MPa</td></tr>
       <tr style="background:#f0fff4"><td><strong>当量应力 σjB（式2-31）</strong></td><td>σrB − σtB = ${fmt(sigma_rB,1)} − (${fmt(sigma_tB,1)})</td><td><strong style="font-size:15px">${fmt(sigma_jB,1)}</strong></td><td>MPa</td></tr>
-      <tr><td>强度要求</td><td>1500 ～ 1700 MPa</td><td>${str_badge}</td><td>—</td></tr>
+      <tr><td>强度要求</td><td>≤ 1700 MPa</td><td>${str_badge}</td><td>—</td></tr>
     </table>
-    ${!str_ok ? `<div class="info-box" style="margin-top:8px;background:${sigma_jB<1500?'#fffbea':'#fdeaea'}">
-      ${sigma_jB < 1500 ? '⚠ σjB = '+fmt(sigma_jB,1)+' MPa 偏低（<1500 MPa），可适当减小 br 或增大 h。' :
-                          '⚠ σjB = '+fmt(sigma_jB,1)+' MPa 超出上限（>1700 MPa），应增大 br、减小 h 或调整几何参数。'}
-    </div>` : `<div class="info-box" style="margin-top:8px;background:#eaf3de;border-color:#639922;color:#173404">✅ σjB = ${fmt(sigma_jB,1)} MPa，满足强度要求（1500～1700 MPa）。</div>`}`;
+    ${!str_ok ? `<div class="info-box" style="margin-top:8px;background:#fdeaea">
+      ⚠ σjB = ${fmt(sigma_jB,1)} MPa 超出上限（> 1700 MPa），应增大 br、减小 h 或调整几何参数。
+    </div>` : `<div class="info-box" style="margin-top:8px;background:#eaf3de;border-color:#639922;color:#173404">✅ σjB = ${fmt(sigma_jB,1)} MPa，满足强度要求（≤ 1700 MPa）。</div>`}`;
 
   document.getElementById('springStrengthResult').innerHTML = strengthHtml;
   document.getElementById('springStrengthResult').style.background = '';
@@ -2016,6 +2033,9 @@ function calcDamper() {
   const Tu = Tu_c * Temax;
   const Tn = Tn_c * Temax;
   const R0 = R0_c * d / 2;
+  // 更新 kδ 参考上限提示
+  const kdRefEl = document.getElementById('kd_ref_hint');
+  if (kdRefEl) kdRefEl.textContent = fmt(13 * Tj, 1);
   // Zj selection
   let Zj = 4;
   if (D_fric >= 325) Zj = 8; else if (D_fric >= 250) Zj = 6; else Zj = 4;
@@ -2029,7 +2049,7 @@ function calcDamper() {
   const l_min = 1.1 * d_s * n_total;
   const delta_l = P / k_spring;
   const l0 = l_min + delta_l;
-  const delta_l_pre = Tn / (k_spring * Zj * R0);
+  const delta_l_pre = Tn * 1000 / (k_spring * Zj * R0);
   const l_work = l0 - delta_l_pre;
   const phi_j = 2 * Math.asin(delta_l / (2 * R0)) * 180 / Math.PI;
   const R2 = lambda1 / Math.sin(phi_j * Math.PI / 180);
@@ -2048,10 +2068,16 @@ function calcDamper() {
     <tr><td>弹簧刚度</td><td>k</td><td>kδ/(1000×R₀²×Zⱼ)</td><td><strong>${fmt(k_spring,2)}</strong></td><td>N/mm</td><td>—</td></tr>
     <tr><td>有效圈数</td><td>i</td><td>Ed⁴/(8Dc³k)</td><td><strong>${fmt(i_eff,3)}</strong></td><td>圈</td><td>—</td></tr>
     <tr><td>总圈数</td><td>n</td><td>i+1.75</td><td><strong>${fmt(n_total,3)}</strong></td><td>圈</td><td>—</td></tr>
-    <tr><td>极限转角</td><td>φⱼ</td><td>2arcsin(Δl/2R₀)</td><td><strong>${fmt(phi_j,2)}</strong></td><td>°</td><td>${badge(phi_j>=3&&phi_j<=12)}</td></tr>
+    <tr><td>极限转角</td><td>φⱼ</td><td>2arcsin(Δl/2R₀)</td><td><strong>${fmt(phi_j,2)}</strong></td><td>°&nbsp;<span style="color:#888;font-size:11px">范围 3°～12°</span></td><td>${badge(phi_j>=3&&phi_j<=12)}</td></tr>
     <tr><td>限位销安装半径</td><td>R₂</td><td>λ/sin(φⱼ)</td><td><strong>${fmt(R2,2)}</strong></td><td>mm</td><td>—</td></tr>
   </table>`;
   document.getElementById('damperResult').innerHTML = html;
+
+  // ── 取值参考：由 φⱼ∈[3°,12°] 反推 kδ 和 k 的合法区间 ──
+  const kd_min = Tj / (2 * Math.sin(6  * Math.PI / 180)); // φⱼ≤12° → kδ≥
+  const kd_max = Tj / (2 * Math.sin(1.5 * Math.PI / 180)); // φⱼ≥3°  → kδ≤
+  const ks_min = kd_min * 1000 / (R0 * R0 * Zj);           // φⱼ≤12° → k≥ (N/mm)
+  const ks_max = kd_max * 1000 / (R0 * R0 * Zj);           // φⱼ≥3°  → k≤ (N/mm)
 
   let detail = `<table class="result-table">
     <tr><th>弹簧参数</th><th>符号</th><th>值</th><th>单位</th></tr>
@@ -2063,7 +2089,36 @@ function calcDamper() {
     <tr><td>预变形量</td><td>Δl'</td><td>${fmt(delta_l_pre,4)}</td><td>mm</td></tr>
     <tr><td>安装工作高度</td><td>l</td><td>${fmt(l_work,3)}</td><td>mm</td></tr>
     <tr><td>限位销间隙</td><td>λ</td><td>${lambda1}</td><td>mm (2.5～4)</td></tr>
-  </table>`;
+  </table>
+  <div class="info-box" style="margin-top:12px;background:#e8f4ff;border-color:#6ab0e0;color:#1a3560">
+    <strong>📐 参数取值参考（由 φⱼ∈[3°,12°] 反推，Tⱼ=${fmt(Tj,1)} N·m，R₀=${fmt(R0,2)} mm，Zⱼ=${Zj}）</strong>
+    <table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:13px">
+      <tr style="background:rgba(0,0,0,0.05)">
+        <th style="padding:6px 8px;text-align:left;border:1px solid #9ac">条件</th>
+        <th style="padding:6px 8px;text-align:left;border:1px solid #9ac">弹簧线刚度 k (N/mm)</th>
+        <th style="padding:6px 8px;text-align:left;border:1px solid #9ac">扭转刚度 kδ (N·m/rad)</th>
+      </tr>
+      <tr>
+        <td style="padding:6px 8px;border:1px solid #9ac">φⱼ ≤ 12°（不超上限）</td>
+        <td style="padding:6px 8px;border:1px solid #9ac">k &nbsp;<strong>≥ ${fmt(ks_min,2)}</strong> N/mm</td>
+        <td style="padding:6px 8px;border:1px solid #9ac">kδ <strong>≥ ${fmt(kd_min,1)}</strong> N·m/rad</td>
+      </tr>
+      <tr style="background:rgba(0,0,0,0.03)">
+        <td style="padding:6px 8px;border:1px solid #9ac">φⱼ ≥ 3°（不低下限）</td>
+        <td style="padding:6px 8px;border:1px solid #9ac">k &nbsp;<strong>≤ ${fmt(ks_max,2)}</strong> N/mm</td>
+        <td style="padding:6px 8px;border:1px solid #9ac">kδ <strong>≤ ${fmt(kd_max,1)}</strong> N·m/rad</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 8px;border:1px solid #9ac;font-weight:600;color:var(--blue)">满足 3°≤ φⱼ ≤12°</td>
+        <td style="padding:6px 8px;border:1px solid #9ac;font-weight:600">${fmt(ks_min,2)} ≤ k ≤ ${fmt(ks_max,2)} N/mm</td>
+        <td style="padding:6px 8px;border:1px solid #9ac;font-weight:600">${fmt(kd_min,1)} ≤ kδ ≤ ${fmt(kd_max,1)} N·m/rad</td>
+      </tr>
+    </table>
+    <div style="margin-top:6px;font-size:11px;color:#556;line-height:1.6">
+      推导：φⱼ = 2arcsin(Δl/2R₀)，Δl = Tⱼ·R₀/kδ &nbsp;⟹&nbsp;
+      kδ = Tⱼ / [2sin(φⱼ/2)]，k = kδ·1000/(R₀²·Zⱼ)
+    </div>
+  </div>`;
   document.getElementById('damperSpringDetail').innerHTML = detail;
   updateSummaryChecks();
 }
@@ -2187,7 +2242,7 @@ function calcControl() {
         <td><strong>${fmt(S1_calc,2)}</strong></td>
         <td>mm</td>
         <td>20～30 mm</td>
-        <td>${badge(S1_calc >= 20 && S1_calc <= 30)}</td>
+        <td>${S1_calc > 30 ? '<span class="badge badge-err">✗ 超出上限</span>' : (S1_calc >= 20 ? '<span class="badge badge-ok">✓ 满足</span>' : '<span class="badge badge-warn">△ 偏小</span>')}</td>
       </tr>
       <tr style="background:#fff8e8">
         <td>踏板自由行程 S₁（输入值）</td>
@@ -2195,7 +2250,7 @@ function calcControl() {
         <td><strong>${S1_input}</strong></td>
         <td>mm</td>
         <td>20～30 mm</td>
-        <td>${badge(S1_input >= 20 && S1_input <= 30)}</td>
+        <td>${S1_input > 30 ? '<span class="badge badge-err">✗ 超出上限</span>' : (S1_input >= 20 ? '<span class="badge badge-ok">✓ 满足</span>' : '<span class="badge badge-warn">△ 偏小</span>')}</td>
       </tr>
       <tr>
         <td>踏板工作行程 S₂</td>
@@ -2209,7 +2264,7 @@ function calcControl() {
         <td><strong style="font-size:15px">${fmt(S_total,2)}</strong></td>
         <td>mm</td>
         <td>80～150 mm</td>
-        <td>${badge(S_total >= 80 && S_total <= 150)}</td>
+        <td>${S_total > 150 ? '<span class="badge badge-err">✗ 超出上限</span>' : (S_total >= 80 ? '<span class="badge badge-ok">✓ 满足</span>' : '<span class="badge badge-warn">△ 偏小</span>')}</td>
       </tr>
 
       <tr style="background:#f8f8f8"><td colspan="6" style="font-weight:600;color:var(--blue);padding:6px 10px">▶ 踏板力与操纵功</td></tr>
@@ -2219,7 +2274,7 @@ function calcControl() {
         <td><strong style="font-size:15px">${noSpring ? '—' : fmt(Ff,2)}</strong></td>
         <td>N</td>
         <td>80～150 N</td>
-        <td>${noSpring ? '<span class="badge badge-warn">需先算弹簧</span>' : badge(Ff >= 80 && Ff <= 150)}</td>
+        <td>${noSpring ? '<span class="badge badge-warn">需先算弹簧</span>' : (Ff > 150 ? '<span class="badge badge-err">✗ 超出上限</span>' : (Ff >= 80 ? '<span class="badge badge-ok">✓ 满足</span>' : '<span class="badge badge-warn">△ 偏小</span>'))}</td>
       </tr>
       <tr style="background:${WL > 0 ? (WL <= 30 ? '#f0fff4' : '#fdeaea') : '#fff8f0'}">
         <td><strong>分离离合器所做的功 WL（式2-44）</strong></td>
@@ -2234,8 +2289,8 @@ function calcControl() {
 
     <div style="margin-top:12px" class="info-box">
       💡 <strong>参数调整建议：</strong><br>
-      • 踏板力Ff超出80～150N → 调整a₂/a₁比或b₂/b₁比或缸径d₁/d₂ → 改变传动比<br>
-      • 踏板总行程S超出范围 → 调整S₀f（自由行程），或调整对偶面间隙δ<br>
+      • 踏板力Ff超出150N → 调整a₂/a₁比或b₂/b₁比或缸径d₁/d₂ → 改变传动比<br>
+      • 踏板总行程S超出150mm → 调整S₀f（自由行程），或调整对偶面间隙δ<br>
       • 操纵功WL > 30J → 减小δ 或提高η，或降低弹簧力（需重核β≥1.10）<br>
       • S₁计算值与输入值偏差较大时，建议以计算值为准重新确定S₁
     </div>`;
@@ -2452,7 +2507,7 @@ function showStudentDetail(idx) {
   s.submissions.sort((a,b)=>new Date(a.timestamp)-new Date(b.timestamp)).forEach(sub => {
     const t = new Date(sub.timestamp).toLocaleString('zh-CN');
     const sc = sub.scores || {};
-    detail += `<tr><td>${t}</td><td>${sub.reportType==='report_grade'?'说明书评阅':'设计评分'}</td>
+    detail += `<tr><td>${t}</td><td>设计评分</td>
       <td><strong>${sub.totalScore}</strong></td>
       <td style="font-size:11px">${Object.entries(sc).map(([k,v])=>`${k}:${v}`).join(' ')}</td></tr>`;
   });
@@ -2534,7 +2589,13 @@ function calcSmartScore() {
   const vD_score = vD_ok ? 4 : 0;
   items.push({ cat:'参数校核', name:'最大圆周速度 vD', std:'≤65～70 m/s', val:`${fmt(vD,2)} m/s`, max:4, score:vD_score });
 
-  const w = state.w_spec || 0;
+  // 单位滑磨功 w — 与第②部分calcVerify保持完全相同的公式和参数来源
+  const _ma = getN('ma'), _i1 = getN('i1'), _i0 = getN('i0'), _rw = getN('r_wheel');
+  const _ne = getN('ne_start') || 2000;
+  const _A  = Math.PI/4*(D*D-d*d);
+  const _v1 = 2*Math.PI*_ne/60 * _rw / (_i1*_i0);
+  const _W  = 0.5*_ma*_v1*_v1;
+  const w   = _W / (Z*_A);
   const w_ok = w > 0 && w <= 0.20;
   const w_score = w_ok ? 4 : (w > 0 && w <= 0.25 ? 2 : (w > 0 ? 0 : 2));
   items.push({ cat:'参数校核', name:'单位滑磨功 w', std:'≤0.20 J/mm²', val: w>0?`${fmt(w,5)} J/mm²`:'未计算', max:4, score:w_score });
@@ -2596,14 +2657,14 @@ function calcSmartScore() {
 
   // ─── 模块5：操纵机构（15分）───
   const Ff = state.Ff || 0;
-  const Ff_ok = Ff >= 80 && Ff <= 150;
-  const Ff_score = Ff_ok ? 5 : (Ff >= 60 && Ff <= 180 ? 3 : (Ff > 0 ? 1 : 0));
-  items.push({ cat:'操纵机构', name:'踏板力 Ff', std:'80～150 N（乘用车）', val:Ff>0?`${fmt(Ff,1)} N`:'未计算', max:5, score:Ff_score });
+  const Ff_ok = Ff > 0 && Ff <= 150;
+  const Ff_score = Ff_ok ? 5 : (Ff > 150 && Ff <= 180 ? 3 : (Ff > 180 ? 1 : 0));
+  items.push({ cat:'操纵机构', name:'踏板力 Ff', std:'≤150 N（乘用车）', val:Ff>0?`${fmt(Ff,1)} N`:'未计算', max:5, score:Ff_score });
 
   const S_total = state.S_total || 0;
-  const S_ok = S_total >= 80 && S_total <= 150;
-  const S_score = S_ok ? 5 : (S_total >= 60 && S_total <= 170 ? 3 : (S_total > 0 ? 1 : 0));
-  items.push({ cat:'操纵机构', name:'踏板总行程 S', std:'80～150 mm', val:S_total>0?`${fmt(S_total,1)} mm`:'未计算', max:5, score:S_score });
+  const S_ok = S_total > 0 && S_total <= 150;
+  const S_score = S_ok ? 5 : (S_total > 150 && S_total <= 170 ? 3 : (S_total > 170 ? 1 : 0));
+  items.push({ cat:'操纵机构', name:'踏板总行程 S', std:'≤150 mm', val:S_total>0?`${fmt(S_total,1)} mm`:'未计算', max:5, score:S_score });
 
   const WL = state.WL || 0;
   const WL_ok = WL > 0 && WL <= 30;
@@ -2667,7 +2728,7 @@ function generateFinalReport() {
   const r = calcSmartScore();
   const grade = r.grade;
   let report = '===============================================\n';
-  report += '   乘用车离合器设计计算报告\n';
+  report += '  汽车膜片弹簧离合器设计计算报告\n';
   report += '===============================================\n\n';
   report += '【学生信息】\n';
   report += `学号：${state.studentId}\n`;
@@ -2715,251 +2776,7 @@ function generateFinalReport() {
   alert('报告已生成！\n请将此 TXT 文件提交给教师，用于导入教师管理统计系统。');
 }
 
-// ══════════ 说明书评阅 ══════════
-let _reportPdfText = '';
-function onReportFileSelected(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  document.getElementById('reportFileName').textContent = file.name;
-  _reportPdfText = '';
-}
 
-async function gradeReport() {
-  const fileInput = document.getElementById('reportFile');
-  if (!fileInput.files[0]) { alert('请先上传PDF说明书文件！'); return; }
-  const resultEl = document.getElementById('reportGradeResult');
-  resultEl.innerHTML = '<div style="text-align:center;padding:40px;color:#888">⏳ 正在提取PDF文本并进行评阅…</div>';
-  document.getElementById('reportGradeBtnArea').style.display = 'none';
-  try {
-    if (!_reportPdfText) {
-      _reportPdfText = await extractPdfText(fileInput.files[0]);
-    }
-    const r = scoreReport(_reportPdfText);
-    window._lastReportGrade = r;
-    renderReportGrade(r, _reportPdfText);
-    document.getElementById('reportGradeBtnArea').style.display = 'block';
-  } catch(err) {
-    resultEl.innerHTML = `<div class="info-box" style="color:var(--err)">❌ 评阅失败：${err.message}</div>`;
-  }
-}
-
-async function extractPdfText(file) {
-  if (window._pdfJsFailed || !window.pdfjsLib) {
-    // fallback: try FileReader as text
-    return await new Promise((res,rej)=>{
-      const r = new FileReader();
-      r.onload = e => res(e.target.result);
-      r.onerror = ()=>rej(new Error('文件读取失败'));
-      r.readAsText(file);
-    });
-  }
-  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-  const buf = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({data: buf}).promise;
-  let text = '';
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const tc   = await page.getTextContent();
-    text += tc.items.map(item => item.str).join(' ') + '\n';
-  }
-  return text;
-}
-
-function extractNum(text, patterns) {
-  for (const pat of patterns) {
-    const m = text.match(pat);
-    if (m) {
-      const n = parseFloat(m[1]);
-      if (!isNaN(n)) return n;
-    }
-  }
-  return null;
-}
-
-function scoreReport(text) {
-  // ── 获取工具当前计算值 ──
-  const Temax = getN('Temax'), beta = getN('beta'), D = getN('D'), d = getN('d');
-  const f = getN('f'), Z = getN('Z'), p0 = getN('p0');
-  const c = d / D;
-  const Tc_ref = (Math.PI/12)*f*Z*p0*Math.pow(D,3)*(1-Math.pow(c,3))/1000;
-  const vD_ref = Math.PI * D/1000 * getN('nemax') / 60;
-  const Ff_ref = state.Ff || 0;
-  const S_ref  = state.S_total || 0;
-  const WL_ref = state.WL || 0;
-  const sigma_ref = state.sigma_p || 0;
-  const tau_ref   = state.tau_s   || 0;
-
-  const refVals = [
-    { item:'离合器静摩擦力矩 Tc', ref:Tc_ref, max:6, patterns:[/T[cC]\s*[=≈≒]\s*([\d.]+)/,/摩擦力矩[^\d]*([\d.]+)/,/静摩擦力矩[^\d]*([\d.]+)/] },
-    { item:'后备系数 β', ref:beta, max:6, patterns:[/后备系数[^\d]*([\d.]+)/,/β\s*[=≈]\s*([\d.]+)/] },
-    { item:'摩擦片外径 D', ref:D, max:6, patterns:[/外径\s*D\s*[=≈]\s*([\d.]+)/,/摩擦片外径[^\d]*([\d.]+)/,/D\s*=\s*([\d.]+)\s*mm/] },
-    { item:'摩擦片内径 d', ref:d, max:6, patterns:[/内径\s*d\s*[=≈]\s*([\d.]+)/,/摩擦片内径[^\d]*([\d.]+)/] },
-    { item:'最大圆周速度 vD', ref:vD_ref, max:5, patterns:[/圆周速度[^\d]*([\d.]+)/,/v[dD]\s*[=≈]\s*([\d.]+)/] },
-    { item:'踏板力 Ff', ref:Ff_ref, max:5, patterns:[/踏板力[^\d]*([\d.]+)/,/F[fF]\s*[=≈]\s*([\d.]+)/] },
-    { item:'踏板行程 S', ref:S_ref, max:5, patterns:[/踏板行程[^\d]*([\d.]+)/,/行程\s*S\s*[=≈]\s*([\d.]+)/] },
-    { item:'操纵功 WL', ref:WL_ref, max:5, patterns:[/操纵功[^\d]*([\d.]+)/,/W[lL]\s*[=≈]\s*([\d.]+)/] },
-    { item:'花键挤压应力 σ_p', ref:sigma_ref, max:5, patterns:[/挤压应力[^\d]*([\d.]+)/,/σ[pP]\s*[=≈]\s*([\d.]+)/] },
-    { item:'花键剪切应力 τ_s', ref:tau_ref, max:5, patterns:[/剪切应力[^\d]*([\d.]+)/,/τ[sS]\s*[=≈]\s*([\d.]+)/] },
-  ];
-
-  let score_data = 0;
-  const data_details = refVals.map(item => {
-    const found = extractNum(text, item.patterns);
-    let status, score;
-    if (found === null) { status='missing'; score=0; }
-    else if (item.ref <= 0) { status='ok'; score=item.max; }
-    else {
-      const diff = Math.abs(found - item.ref) / Math.abs(item.ref);
-      if      (diff <= 0.08) { status='ok';   score=item.max; }
-      else if (diff <= 0.24) { status='warn';  score=Math.round(item.max*0.55); }
-      else                   { status='err';   score=Math.round(item.max*0.20); }
-    }
-    score_data += score;
-    return { item:item.item, expected:item.ref>0?fmt(item.ref,3):'—', found:found!==null?fmt(found,3):'未找到', status, score, max:item.max };
-  });
-
-  // ── 格式检查（30分）──
-  const fmtChecks = [
-    { name:'章节结构', desc:'含绪论/设计计算/结论等章节', max:6, test:/绪论|前言|design.*intro/i },
-    { name:'图表编号', desc:'含图1/表1等编号', max:6, test:/图\s*[\d一二三]+|表\s*[\d一二三]+/i },
-    { name:'公式编号', desc:'含（2-1）式等编号格式', max:6, test:/（?\d+[-－]\d+）|式\s*[（(]\d/i },
-    { name:'单位规范', desc:'正确使用N·m/MPa等单位', max:6, test:/N·m|N·mm|MPa|mm²|m\/s/i },
-    { name:'标题层次', desc:'含章/节分级结构', max:6, test:/第[一二三四五六七八九十\d]+章|[一二三四五六七八九十1-9]\s*[、.．]/i },
-  ];
-  let score_format = 0;
-  const format_details = fmtChecks.map(ck => {
-    const ok = ck.test.test(text);
-    const score = ok ? ck.max : Math.round(ck.max * 0.3);
-    score_format += score;
-    return { name:ck.name, desc:ck.desc, score, max:ck.max };
-  });
-
-  // ── 内容质量（20分）──
-  const ctChecks = [
-    { name:'国标引用', desc:'引用GB/T等国家标准', max:5, test:/GB\s*[\/\s]\d+|GB\/T|国家标准/ },
-    { name:'计算过程完整', desc:'含有推导或计算步骤', max:5, test:/代入|计算得|∴|故|由式|根据/i },
-    { name:'设计分析', desc:'含有方案对比或合理性分析', max:5, test:/分析|对比|选取原因|合理性|方案|优化/i },
-    { name:'内容充实', desc:'正文字数≥3000字', max:5, test: text => text.replace(/\s/g,'').length >= 3000 },
-  ];
-  let score_content = 0;
-  const content_details = ctChecks.map(ck => {
-    const ok = typeof ck.test === 'function' ? ck.test(text) : ck.test.test(text);
-    const score = ok ? ck.max : Math.round(ck.max * 0.3);
-    score_content += score;
-    return { name:ck.name, desc:ck.desc, score, max:ck.max };
-  });
-
-  const total = Math.min(100, score_data + score_format + score_content);
-  return { total, score_data, score_format, score_content, data_details, format_details, content_details };
-}
-
-function renderReportGrade(r, text) {
-  const grade = r.total>=90?'优秀':r.total>=80?'良好':r.total>=70?'中等':r.total>=60?'及格':'不及格';
-  const statusIcon = { ok:'✅', warn:'⚠️', err:'❌', missing:'—' };
-  const dataRows = r.data_details.map(d=>`
-    <tr>
-      <td>${d.item}</td>
-      <td style="font-family:monospace">${d.expected}</td>
-      <td style="font-family:monospace">${d.found}</td>
-      <td>${statusIcon[d.status]||''}</td>
-      <td style="text-align:center"><span class="badge ${d.score===d.max?'badge-ok':d.score>0?'badge-warn':'badge-err'}">${d.score}/${d.max}</span></td>
-    </tr>`).join('');
-  const fmtRows = r.format_details.map(d=>`
-    <tr>
-      <td><strong>${d.name}</strong></td>
-      <td style="font-size:12px;color:#666">${d.desc}</td>
-      <td style="text-align:center"><span class="badge ${d.score===d.max?'badge-ok':d.score>0?'badge-warn':'badge-err'}">${d.score}/${d.max}</span></td>
-    </tr>`).join('');
-  const ctRows = r.content_details.map(d=>`
-    <tr>
-      <td><strong>${d.name}</strong></td>
-      <td style="font-size:12px;color:#666">${d.desc}</td>
-      <td style="text-align:center"><span class="badge ${d.score===d.max?'badge-ok':d.score>0?'badge-warn':'badge-err'}">${d.score}/${d.max}</span></td>
-    </tr>`).join('');
-  const wordCount = text.replace(/\s/g,'').length;
-
-  document.getElementById('reportGradeResult').innerHTML = `
-    <div class="score-card" style="margin-top:16px">
-      <div class="score-display">
-        <div class="score-label">说明书评阅总分</div>
-        <div class="score-value">${r.total}</div>
-        <div class="score-label" style="font-size:22px;font-weight:700;margin-top:6px">${grade}</div>
-      </div>
-      <div class="score-details">
-        <div class="score-detail-item"><div class="label">数据符合度</div><div class="value">${r.score_data} / 50</div></div>
-        <div class="score-detail-item"><div class="label">排版格式</div><div class="value">${r.score_format} / 30</div></div>
-        <div class="score-detail-item"><div class="label">内容质量</div><div class="value">${r.score_content} / 20</div></div>
-        <div class="score-detail-item"><div class="label">正文字数（参考）</div><div class="value">${wordCount}</div></div>
-      </div>
-    </div>
-    <div class="card" style="margin-top:14px">
-      <div class="card-title"><span class="icon">📊</span>数据符合度明细（${r.score_data}/50 分）</div>
-      <table class="result-table">
-        <tr><th>参数</th><th>工具计算值</th><th>说明书中的值</th><th>一致性</th><th>得分</th></tr>
-        ${dataRows}
-      </table>
-      <div style="margin-top:8px;font-size:12px;color:#888">容差规则：偏差≤8%得满分；8%~24%得55%分；>24%得20%分；未提及得0分</div>
-    </div>
-    <div class="card">
-      <div class="card-title"><span class="icon">📝</span>排版格式规范明细（${r.score_format}/30 分）</div>
-      <table class="result-table">
-        <tr><th>检查项目</th><th>说明</th><th>得分</th></tr>${fmtRows}
-      </table>
-    </div>
-    <div class="card">
-      <div class="card-title"><span class="icon">💡</span>内容质量明细（${r.score_content}/20 分）</div>
-      <table class="result-table">
-        <tr><th>检查项目</th><th>说明</th><th>得分</th></tr>${ctRows}
-      </table>
-    </div>
-    <div class="card">
-      <div class="card-title"><span class="icon">✅</span>改进建议</div>
-      <div class="formula-box" style="line-height:2">
-        ${r.score_data<35?'📌 <strong>数据完整性不足：</strong>说明书中有多个核心参数缺失或与工具计算值偏差过大，请核对计算过程并将所有结果写入说明书。<br>':''}
-        ${r.score_format<20?'📌 <strong>格式规范需改进：</strong>建议补充章节结构（绪论→计算→结论→参考文献），图表、公式添加编号，单位使用国标符号。<br>':''}
-        ${r.score_content<14?'📌 <strong>内容深度不足：</strong>建议引用GB 5763等国家标准，补充设计方案分析、合理性论述和结论验证内容。<br>':''}
-        ${r.total>=80?'✅ 说明书整体质量良好，数据、格式、内容均达到较高水准。':''}
-      </div>
-    </div>`;
-}
-
-function generateReportGradeFile() {
-  const r = window._lastReportGrade;
-  if (!r) { alert('请先完成说明书评阅！'); return; }
-  if (!state.studentId) { alert('请先输入学号和姓名！'); return; }
-  const grade = r.total>=90?'优秀':r.total>=80?'良好':r.total>=70?'中等':r.total>=60?'及格':'不及格';
-  let report = '===============================================\n   离合器设计说明书评阅报告\n===============================================\n\n';
-  report += `【学生信息】\n学号：${state.studentId}\n姓名：${state.studentName}\n提交时间：${new Date().toLocaleString('zh-CN')}\n\n`;
-  report += `【说明书评阅总分】\n-----------------------------------------------\n总分：${r.total} / 100  （${grade}）\n数据符合度：${r.score_data} / 50\n排版格式规范：${r.score_format} / 30\n内容质量：${r.score_content} / 20\n\n`;
-  report += '【数据符合度明细】\n-----------------------------------------------\n';
-  r.data_details.forEach(d => {
-    const st = d.status==='ok'?'✓ 一致':d.status==='warn'?'△ 偏差':d.status==='err'?'✗ 差异大':'— 未提及';
-    report += `${d.item}\n  参考值：${d.expected}  说明书值：${d.found}  ${st}  得分：${d.score}/${d.max}\n`;
-  });
-  report += '\n【排版格式明细】\n-----------------------------------------------\n';
-  (r.format_details||[]).forEach(d => { report += `${d.name}（${d.desc}）：${d.score}/${d.max}\n`; });
-  report += '\n【内容质量明细】\n-----------------------------------------------\n';
-  (r.content_details||[]).forEach(d => { report += `${d.name}（${d.desc}）：${d.score}/${d.max}\n`; });
-  report += '\n===============================================\n报告结束\n';
-  report += `学号：${state.studentId}  姓名：${state.studentName}\n===============================================\n\n\n`;
-  report += '--- 以下为系统数据，请勿修改 ---\n--- SYSTEM DATA BEGIN ---\n';
-  const jsonData = {
-    studentId:       state.studentId,
-    studentName:     state.studentName,
-    timestamp:       new Date().toISOString(),
-    reportType:      'report_grade',
-    totalScore:      r.total,
-    grade:           grade,
-    scores: { s1:r.score_data, s2:r.score_format, s3:r.score_content, s4:0, s5:0, s6:0 },
-    details:         r.data_details,
-    format_details:  r.format_details,
-    content_details: r.content_details
-  };
-  report += JSON.stringify(jsonData, null, 2);
-  report += '\n--- SYSTEM DATA END ---\n';
-  downloadFile(report, `说明书评阅报告_${state.studentId}_${state.studentName}_${new Date().toISOString().slice(0,10)}.txt`, 'text/plain;charset=utf-8');
-  alert('说明书评阅报告已生成！\n请将此 TXT 文件提交给教师，用于导入教师管理统计系统。');
-}
 
 // ══════════ 覆盖原 calcSummary 以触发评分 ══════════
 
@@ -2979,7 +2796,8 @@ function updateSummaryChecks() {
   const Rc = (2/3)*(Math.pow(R_mm,3)-Math.pow(r_mm,3))/(Math.pow(R_mm,2)-Math.pow(r_mm,2));
   const F = Tc*1000/(f*Z*Rc);
   const ma = getN('ma'), i1 = getN('i1'), i0 = getN('i0'), r_w = getN('r_wheel');
-  const v1 = 2*Math.PI*2000/60*r_w/(i1*i0);
+  const ne_start_u = getN('ne_start') || 2000;
+  const v1 = 2*Math.PI*ne_start_u/60*r_w/(i1*i0);
   const W = 0.5*ma*v1*v1;
   const w_spec = W/(Z*A);
   const Tj = getN('Tj_coef') * Temax;
@@ -2999,7 +2817,7 @@ function updateSummaryChecks() {
   upd('chk_w', `${fmt(w_spec,5)} J/mm²`, w_spec<=0.20);
   upd('chk_Tj', `${fmt(Tj,1)} N·m`, Math.abs(Tj - 2*Temax) < 1);
   upd('chk_lever', lever > 0 ? `${fmt(lever,4)}` : '—', lever>=0.222&&lever<=0.435);
-  upd('chk_Ff', Ff > 0 ? `${fmt(Ff,1)} N` : '—', Ff>=80&&Ff<=150);
+  upd('chk_Ff', Ff > 0 ? `${fmt(Ff,1)} N` : '—', !Ff || Ff <= 150);
   upd('chk_sigma_p', state.sigma_p > 0 ? `${fmt(state.sigma_p,2)} MPa` : '—', !state.sigma_p || state.sigma_p<=30);
   upd('chk_tau_s',   state.tau_s   > 0 ? `${fmt(state.tau_s,2)} MPa`   : '—', !state.tau_s   || state.tau_s<=15);
 }
@@ -3051,8 +2869,8 @@ function calcSummary() {
     { name: '内外径比c', ok: d/D >= 0.53 && d/D <= 0.70 },
     { name: '最大圆周速度vD', ok: Math.PI*D/1000*getN('nemax')/60 <= 70 },
     { name: '单位滑磨功w', ok: true }, // simplified
-    { name: '膜片弹簧杠杆比', ok: !state.lever || (state.lever >= 2.3 && state.lever <= 4.5) },
-    { name: '踏板力Ff', ok: !state.Ff || (state.Ff >= 80 && state.Ff <= 150) },
+    { name: '膜片弹簧杠杆比', ok: !state.lever || (state.lever >= 0.222 && state.lever <= 0.435) },
+    { name: '踏板力Ff', ok: !state.Ff || state.Ff <= 150 },
     { name: '操纵功WL≤30J', ok: !state.WL || state.WL <= 30 },
     { name: '花键挤压应力≤30MPa', ok: !state.sigma_p || state.sigma_p <= 30 },
     { name: '花键剪切应力≤15MPa', ok: !state.tau_s || state.tau_s <= 15 },
@@ -3134,7 +2952,7 @@ function exportReport() {
 // ========== LOCAL STORAGE PERSISTENCE ==========
 // IDs of all inputs/selects to save
 const SAVE_IDS = [
-  'Temax','nT','nemax','ma','i1','i0','r_wheel','umax','vehicleType',
+  'Temax','nT','nemax','ma','i1','i0','r_wheel','umax','vehicleType','ne_start',
   'springType','beta','p0','f','Z','delta_t','KD','D','d','b',
   'h_spring','H_spring','R_spring','r_spring_direct',
   'n_fingers','R1_spring','r1_spring','r0_spring','rf_spring',
@@ -3205,6 +3023,368 @@ window.addEventListener('resize', () => {
     try { calcPressurePlate(); } catch(e) {}
   }
 });
+
+// ══════════════════════════════════════════════════════════
+//  说明书评阅模块 — 完全离线，无需网络 / API Key
+// ══════════════════════════════════════════════════════════
+
+// ── 文件选择反馈 ─────────────────────────────────────────
+function onReportFileSelected(e) {
+  const f = e.target.files[0];
+  document.getElementById('reportFileName').textContent = f ? f.name : '未选择文件';
+  if (f) {
+    const z = document.getElementById('reportUploadZone');
+    z.style.borderColor = 'var(--ok)'; z.style.background = '#f0fff4';
+  }
+}
+
+// ── 用 pdf.js 提取说明书 PDF 全部文字 ────────────────────
+async function extractPdfText(arrayBuffer) {
+  const pdfjsLib = window['pdfjs-dist/build/pdf'];
+  if (!pdfjsLib) {
+    throw new Error(
+      'PDF解析库尚未就绪。请确保设备已联网，刷新页面后重试；' +
+      '若长期断网，可先联网打开页面一次使浏览器缓存该库。'
+    );
+  }
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  const doc   = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const pages = doc.numPages;
+  let fullText = '';
+
+  for (let i = 1; i <= pages; i++) {
+    const page    = await doc.getPage(i);
+    const content = await page.getTextContent();
+    const items   = content.items;
+    const lineMap = {};
+    items.forEach(item => {
+      if (!item.str) return;
+      const y = Math.round(item.transform[5]);
+      if (!lineMap[y]) lineMap[y] = [];
+      lineMap[y].push({ x: item.transform[4], str: item.str });
+    });
+    const lines = Object.keys(lineMap)
+      .sort((a, b) => b - a)
+      .map(y => lineMap[y].sort((a, b) => a.x - b.x).map(t => t.str).join(''));
+    fullText += lines.join('\n') + '\n';
+  }
+  return fullText.replace(/\n{3,}/g, '\n\n').trim();
+}
+
+// ── 规则打分引擎（离合器专版）───────────────────────────
+function scoreReport(text) {
+  const R = { score_data:0, score_format:0, score_content:0, data_details:[], format_details:[], content_details:[] };
+
+  // ─ 维度一：数据符合度（50分）─────────────────────────
+  // 取当前工具已计算的 state 值作为基准
+  const Temax = state.Temax || getN('Temax');
+  const beta  = state.beta  || getN('beta');
+  const Tc    = state.Tc    || 0;
+  const D     = state.D     || getN('D');
+  const d_val = state.d     || getN('d');
+  const c_val = state.c     || (d_val / D);
+  const vD    = state.vD    || 0;
+  const w     = state.w_spec|| 0;
+  const Ff    = state.Ff    || 0;
+  const Stotal= state.S_total || 0;
+
+  const params = [
+    { name:'后备系数 β',            kws:['后备系数','β','beta'],              val:beta,   unit:'',      tol:0.05, max:6  },
+    { name:'离合器静摩擦力矩 Tc',   kws:['静摩擦力矩','Tc','摩擦力矩'],      val:Tc,     unit:'N·m',   tol:0.08, max:8  },
+    { name:'摩擦片外径 D',          kws:['外径.*D','摩擦片.*径'],             val:D,      unit:'mm',    tol:0.05, max:6  },
+    { name:'摩擦片内径 d',          kws:['内径.*d','内.*径'],                 val:d_val,  unit:'mm',    tol:0.05, max:5  },
+    { name:'内外径比 c = d/D',      kws:['内外径比','c\\s*=','c值'],          val:c_val,  unit:'',      tol:0.05, max:5  },
+    { name:'最大圆周速度 vD',       kws:['圆周速度','vD','v_D'],              val:vD,     unit:'m/s',   tol:0.08, max:5  },
+    { name:'单位滑磨功 w',          kws:['滑磨功','单位.*滑'],                val:w,      unit:'J/mm²', tol:0.10, max:5  },
+    { name:'踏板力 Ff',             kws:['踏板力','Ff'],                      val:Ff,     unit:'N',     tol:0.08, max:5  },
+    { name:'踏板行程 S',            kws:['踏板行程','踏板.*行程'],             val:Stotal, unit:'mm',    tol:0.08, max:5  },
+  ];
+
+  params.forEach(p => {
+    const ref = p.val;
+    if (!ref || ref === 0) {
+      R.data_details.push({ item:p.name, expected:'（未计算，请先更新计算）', found:'—', status:'skip', score:0, max:p.max });
+      return;
+    }
+    let foundVal = null, foundStr = '未提及';
+    const candidates = [];
+    for (const kw of p.kws) {
+      const kwRe = new RegExp(kw, 'gi');
+      let km;
+      while ((km = kwRe.exec(text)) !== null) {
+        const winStart = Math.max(0, km.index - 80);
+        const winEnd   = Math.min(text.length, km.index + 300);
+        const win      = text.slice(winStart, winEnd);
+        const nums     = win.match(/[0-9]+(?:\.[0-9]+)?/g) || [];
+        nums.forEach(n => {
+          const v = parseFloat(n);
+          if (ref > 50 && v < 10)  return;
+          if (ref > 1  && v < 0.001) return;
+          candidates.push(v);
+        });
+        if (candidates.length > 24) break;
+      }
+    }
+    let score = 0, status = 'miss';
+    if (candidates.length > 0) {
+      foundVal = candidates.reduce((best, v) =>
+        Math.abs(v - ref) < Math.abs(best - ref) ? v : best
+      );
+      foundStr = String(foundVal);
+      const diff = Math.abs(foundVal - ref) / Math.max(Math.abs(ref), 0.001);
+      if (diff <= p.tol)        { score = p.max;                    status = 'ok'; }
+      else if (diff <= p.tol*3) { score = Math.round(p.max * 0.55); status = 'warn'; }
+      else                      { score = Math.round(p.max * 0.2);  status = 'err'; }
+    }
+    R.score_data += score;
+    R.data_details.push({ item:p.name, expected:`${fmt(ref,3)} ${p.unit}`, found: foundVal!==null ? `${foundStr} ${p.unit}` : '未提及', status, score, max:p.max });
+  });
+  R.score_data = Math.min(50, R.score_data);
+
+  // ─ 维度二：排版格式（30分）───────────────────────────
+  const fmtChecks = [
+    { name:'章节结构完整', desc:'含绪论/前言、设计计算、结论、参考文献四部分', max:8,
+      fn:()=>{
+        const a = /绪论|前言|概述|设计目的|引言/.test(text)?2:0;
+        const b = /计算|设计计算|方案/.test(text)?2:0;
+        const c2 = /结论|总结|结语/.test(text)?2:0;
+        const d2 = /参考文献|参考资料/.test(text)?2:0;
+        return a+b+c2+d2;
+      }
+    },
+    { name:'图表编号规范', desc:'图形有"图x"编号，表格有"表x"编号', max:6,
+      fn:()=>(/图\s*\d+/.test(text)?3:0) + (/表\s*\d+/.test(text)?3:0)
+    },
+    { name:'公式编号', desc:'有括号形式公式编号，如（1）、(1-1)', max:5,
+      fn:()=>/[（(]\s*\d+[-\d]*\s*[）)]|式[（(]/.test(text)?5:0
+    },
+    { name:'单位使用规范', desc:'正确使用N·m、m/s、mm、MPa等SI单位', max:5,
+      fn:()=>{
+        const us=['N·m','N/mm','m/s','MPa','mm','kN',' N ','kg','km/h','J/mm'];
+        return Math.min(5, us.filter(u=>text.includes(u)).length);
+      }
+    },
+    { name:'标题层次清晰', desc:'有多级标题（一级章节、二级小节）', max:6,
+      fn:()=>{
+        const h1 = /^[一二三四五六七八九十]+[、.．]|^第[一二三四五六七八九十\d]+章|^\d+\s+[\u4e00-\u9fff]/m.test(text)?3:0;
+        const h2 = /^\d+\.\d+\s+|^[（(][一二三四五六七八九十\d]+[）)]/m.test(text)?3:0;
+        return h1+h2;
+      }
+    },
+  ];
+  fmtChecks.forEach(c3 => {
+    const s = c3.fn();
+    R.score_format += s;
+    R.format_details.push({ name:c3.name, desc:c3.desc, score:s, max:c3.max });
+  });
+  R.score_format = Math.min(30, R.score_format);
+
+  // ─ 维度三：内容质量（20分）──────────────────────────
+  const ctChecks = [
+    { name:'引用国家标准', desc:'引用GB/T 1143、GB/T 5764等离合器相关标准', max:5,
+      fn:()=>{const n=(text.match(/GB[\s/T]*\d+|国家标准|汽车设计/g)||[]).length; return n>=3?5:n>=1?3:0;}
+    },
+    { name:'计算过程详细', desc:'有公式推导、数据代入、求解过程', max:5,
+      fn:()=>{
+        const a=/公式|代入|求得|计算得|由.*得|其中/.test(text)?3:0;
+        const b=/步骤|由式|将.*代入/.test(text)?2:0;
+        return a+b;
+      }
+    },
+    { name:'设计分析深度', desc:'有方案比较、合理性论述、校核验证', max:5,
+      fn:()=>{
+        const ks=['分析','选取依据','合理性','满足要求','校核','验算','综上','因此','由此','膜片弹簧','离合器'];
+        return Math.min(5, Math.round(ks.filter(k=>text.includes(k)).length * 0.6));
+      }
+    },
+    { name:'内容充实度', desc:'说明书正文字数（≥5000字为满分）', max:5,
+      fn:()=>{
+        const n = text.replace(/\s/g,'').length;
+        return n>=5000?5:n>=3000?4:n>=1500?2:1;
+      }
+    },
+  ];
+  ctChecks.forEach(c4 => {
+    const s = c4.fn();
+    R.score_content += s;
+    R.content_details.push({ name:c4.name, desc:c4.desc, score:s, max:c4.max });
+  });
+  R.score_content = Math.min(20, R.score_content);
+
+  R.total = R.score_data + R.score_format + R.score_content;
+  return R;
+}
+
+// ── 执行评阅 ─────────────────────────────────────────────
+async function gradeReport() {
+  const fileInput = document.getElementById('reportFile');
+  if (!fileInput.files || !fileInput.files[0]) { alert('请先选择说明书 PDF 文件！'); return; }
+
+  const res = document.getElementById('reportGradeResult');
+  document.getElementById('reportGradeBtnArea').style.display = 'none';
+  res.innerHTML = `<div class="ai-loading"><div class="spinner"></div><div style="color:var(--blue);font-weight:600">正在提取 PDF 文字，请稍候…</div></div>`;
+
+  try {
+    const ab = await fileInput.files[0].arrayBuffer();
+    const text = await extractPdfText(ab);
+    if (text.length < 50) throw new Error('未能提取到文字内容。请确认 PDF 说明书中含有可选中的文字（非纯扫描图片）。');
+    const r = scoreReport(text);
+    window._lastReportGrade = r;
+    renderReportGrade(r, text);
+  } catch(err) {
+    res.innerHTML = `<div class="card"><div style="background:#fde8e7;border:1px solid var(--err);border-radius:6px;padding:14px;color:var(--err)">
+      <strong>❌ 评阅失败：</strong>${err.message}
+    </div></div>`;
+  }
+}
+
+// ── 渲染评阅报告 ─────────────────────────────────────────
+function renderReportGrade(r, text) {
+  const grade = r.total>=90?'优秀':r.total>=80?'良好':r.total>=70?'中等':r.total>=60?'及格':'不及格';
+  const statusIcon = {
+    ok:   '<span style="color:var(--ok)">✓ 一致</span>',
+    warn: '<span style="color:var(--warn)">△ 偏差</span>',
+    err:  '<span style="color:var(--err)">✗ 差异大</span>',
+    miss: '<span style="color:#999">— 未提及</span>',
+    skip: '<span style="color:#aaa">— 跳过</span>'
+  };
+
+  const dataRows = r.data_details.map(d=>`
+    <tr>
+      <td>${d.item}</td>
+      <td style="font-family:monospace">${d.expected}</td>
+      <td style="font-family:monospace">${d.found}</td>
+      <td>${statusIcon[d.status]||''}</td>
+      <td style="text-align:center"><span class="badge ${d.score===d.max?'badge-ok':d.score>0?'badge-warn':'badge-err'}">${d.score}/${d.max}</span></td>
+    </tr>`).join('');
+
+  const fmtRows = r.format_details.map(d=>`
+    <tr>
+      <td><strong>${d.name}</strong></td>
+      <td style="font-size:12px;color:#666">${d.desc}</td>
+      <td style="text-align:center"><span class="badge ${d.score===d.max?'badge-ok':d.score>0?'badge-warn':'badge-err'}">${d.score}/${d.max}</span></td>
+    </tr>`).join('');
+
+  const ctRows = r.content_details.map(d=>`
+    <tr>
+      <td><strong>${d.name}</strong></td>
+      <td style="font-size:12px;color:#666">${d.desc}</td>
+      <td style="text-align:center"><span class="badge ${d.score===d.max?'badge-ok':d.score>0?'badge-warn':'badge-err'}">${d.score}/${d.max}</span></td>
+    </tr>`).join('');
+
+  const wordCount = text.replace(/\s/g,'').length;
+
+  document.getElementById('reportGradeResult').innerHTML = `
+    <div class="score-card" style="margin-top:16px">
+      <div class="score-display">
+        <div class="score-label">说明书评阅总分</div>
+        <div class="score-value">${r.total}</div>
+        <div class="score-label" style="font-size:22px;font-weight:700;margin-top:6px">${grade}</div>
+      </div>
+      <div class="score-details">
+        <div class="score-detail-item"><div class="label">数据符合度</div><div class="value">${r.score_data} / 50</div></div>
+        <div class="score-detail-item"><div class="label">排版格式</div><div class="value">${r.score_format} / 30</div></div>
+        <div class="score-detail-item"><div class="label">内容质量</div><div class="value">${r.score_content} / 20</div></div>
+        <div class="score-detail-item"><div class="label">正文字数（参考）</div><div class="value">${wordCount}</div></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="card-title"><span class="icon">📊</span>数据符合度明细（${r.score_data}/50 分）</div>
+      <table class="result-table">
+        <tr><th>参数</th><th>工具计算值</th><th>说明书中的值</th><th>一致性</th><th>得分</th></tr>
+        ${dataRows}
+      </table>
+      <div style="margin-top:8px;font-size:12px;color:#888">容差规则：偏差≤8%得满分；8%~24%得55%分；>24%得20%分；未提及得0分</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">📝</span>排版格式规范明细（${r.score_format}/30 分）</div>
+      <table class="result-table">
+        <tr><th>检查项目</th><th>说明</th><th>得分</th></tr>
+        ${fmtRows}
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">💡</span>内容质量明细（${r.score_content}/20 分）</div>
+      <table class="result-table">
+        <tr><th>检查项目</th><th>说明</th><th>得分</th></tr>
+        ${ctRows}
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">✅</span>改进建议</div>
+      <div class="formula-box" style="line-height:2">
+        ${r.score_data<35?'📌 <strong>数据完整性不足：</strong>说明书中有多个核心参数缺失或与工具计算值偏差过大，请核对计算过程并将所有结果写入说明书。<br>':''}
+        ${r.score_format<20?'📌 <strong>格式规范需改进：</strong>建议补充章节结构（绪论→计算→结论→参考文献），图表、公式添加编号，单位使用国标符号。<br>':''}
+        ${r.score_content<14?'📌 <strong>内容深度不足：</strong>建议引用GB/T 5764等国家标准，补充设计方案分析、合理性论述和结论验证内容。<br>':''}
+        ${r.total>=80?'✅ 说明书整体质量良好，数据、格式、内容均达到较高水准。':''}
+      </div>
+    </div>`;
+
+  document.getElementById('reportGradeBtnArea').style.display = 'block';
+}
+
+// ── 生成说明书评阅完整报告 ───────────────────────────────
+function generateReportGradeFile() {
+  const r = window._lastReportGrade;
+  if (!r) { alert('请先完成说明书评阅！'); return; }
+  const grade = r.total>=90?'优秀':r.total>=80?'良好':r.total>=70?'中等':r.total>=60?'及格':'不及格';
+
+  let report = '===============================================\n';
+  report += '   离合器设计说明书评阅报告\n';
+  report += '===============================================\n\n';
+  report += '【学生信息】\n';
+  report += `学号：${state.studentId}\n`;
+  report += `姓名：${state.studentName}\n`;
+  report += `提交时间：${new Date().toLocaleString('zh-CN')}\n\n`;
+  report += '【说明书评阅总分】\n-----------------------------------------------\n';
+  report += `总分：${r.total} / 100  （${grade}）\n`;
+  report += `数据符合度：${r.score_data} / 50\n`;
+  report += `排版格式规范：${r.score_format} / 30\n`;
+  report += `内容质量：${r.score_content} / 20\n\n`;
+  report += '【数据符合度明细】\n-----------------------------------------------\n';
+  r.data_details.forEach(d => {
+    const st = d.status==='ok'?'✓ 一致':d.status==='warn'?'△ 偏差':d.status==='err'?'✗ 差异大':'— 未提及';
+    report += `${d.item}\n  参考值：${d.expected}  说明书值：${d.found}  ${st}  得分：${d.score}/${d.max}\n`;
+  });
+  report += '\n【排版格式明细】\n-----------------------------------------------\n';
+  (r.format_details||[]).forEach(d => { report += `${d.name}（${d.desc}）：${d.score}/${d.max}\n`; });
+  report += '\n【内容质量明细】\n-----------------------------------------------\n';
+  (r.content_details||[]).forEach(d => { report += `${d.name}（${d.desc}）：${d.score}/${d.max}\n`; });
+  report += '\n===============================================\n报告结束\n';
+  report += `学号：${state.studentId}  姓名：${state.studentName}\n`;
+  report += '===============================================\n\n\n';
+  report += '--- 以下为系统数据，请勿修改 ---\n';
+  report += '--- SYSTEM DATA BEGIN ---\n';
+  const jsonData = {
+    studentId:      state.studentId,
+    studentName:    state.studentName,
+    timestamp:      new Date().toISOString(),
+    reportType:     'report_grade',
+    totalScore:     r.total,
+    grade:          grade,
+    scores: { s1: r.score_data, s2: r.score_format, s3: r.score_content, s4:0, s5:0, s6:0 },
+    details:        r.data_details,
+    format_details: r.format_details,
+    content_details:r.content_details
+  };
+  report += JSON.stringify(jsonData, null, 2);
+  report += '\n--- SYSTEM DATA END ---\n';
+
+  const blob = new Blob([report], { type: 'text/plain;charset=utf-8' });
+  const link = document.createElement('a');
+  link.href     = URL.createObjectURL(blob);
+  link.download = `说明书评阅报告_${state.studentId}_${state.studentName}_${new Date().toISOString().slice(0,10)}.txt`;
+  link.click();
+  alert('说明书评阅报告已生成！\n请将此 TXT 文件提交给教师，用于导入教师管理统计系统。');
+}
+
+// ══════════════════════════════════════════════════════════
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('keydown', e => {
 if (e.key === 'F12' || 
@@ -3215,7 +3395,6 @@ e.preventDefault();
 return false;
 }
 });
-
 </script>
 <script>
   document.addEventListener('contextmenu', e => e.preventDefault());
@@ -3229,6 +3408,5 @@ return false;
     }
   });
 </script>
-
 </body>
 </html>

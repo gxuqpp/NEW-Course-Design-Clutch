@@ -3,7 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>汽车膜片弹簧离合器设计计算工具</title>
+<title>汽车膜片弹簧离合器设计辅助工具</title>
+<!-- 防止右键及快捷键查看源代码 -->
+<script>
+(function(){
+  // 禁用右键菜单
+  document.addEventListener('contextmenu', function(e){ e.preventDefault(); }, true);
+  // 禁用查看源代码 / 开发者工具 / 保存网页 快捷键
+  document.addEventListener('keydown', function(e){
+    var k = (e.key || '').toLowerCase();
+    var ctrl = e.ctrlKey || e.metaKey;
+    if (
+      e.key === 'F12' || e.keyCode === 123 ||                                   // F12
+      (ctrl && !e.shiftKey && (k === 'u' || k === 's')) ||                      // Ctrl+U 查看源代码 / Ctrl+S 保存
+      (ctrl && e.shiftKey && (k === 'i' || k === 'j' || k === 'c')) ||          // Ctrl+Shift+I/J/C 开发者工具
+      (e.metaKey && e.altKey && (k === 'i' || k === 'j' || k === 'c' || k === 'u' ||
+        e.code === 'KeyI' || e.code === 'KeyJ' || e.code === 'KeyC' || e.code === 'KeyU')) // Mac Cmd+Option+I/J/C/U
+    ) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
+  }, true);
+})();
+</script>
 <!-- PDF渲染（无网络时自动退化为错误提示） -->
 <script>
 (function(){
@@ -174,7 +197,6 @@
     .score-details { grid-template-columns: 1fr 1fr; }
     .grade-criteria { grid-template-columns: 1fr; }
   }
-user-select: none
 </style>
 
 </head>
@@ -185,7 +207,7 @@ user-select: none
   <div class="login-box">
     <h2>🎓 学生身份验证</h2>
     <div class="desc">
-      欢迎使用汽车膜片弹簧离合器设计计算工具！<br>
+      欢迎使用汽车膜片弹簧离合器设计辅助工具！<br>
       请输入您的学号和姓名开始设计。完成后系统将自动评分并生成报告。
     </div>
     <div class="login-field">
@@ -224,8 +246,8 @@ user-select: none
 
 <div class="app-header">
   <div>
-    <h1>🚗 汽车膜片弹簧离合器设计计算工具·广西大学 ·车辆工程专业 ·《汽车设计》课程教学团队</h1>
-    <div class="sub">《汽车设计》第6版（闵海涛、王建华）—课程设计版 📱移动端兼容</div>
+    <h1>🚗 汽车膜片弹簧离合器设计辅助工具（课程设计版）</h1>
+    <div class="sub">广西大学 ·车辆工程专业 ·《汽车设计》课程教学团队</div>
   </div>
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
     <div class="teacher-btn" onclick="openTeacherLogin()">👨‍🏫 教师管理</div>
@@ -263,7 +285,7 @@ user-select: none
       <div class="field"><label>车轮滚动半径 r</label><input type="number" id="r_wheel" value="0.268" step="0.001"><div class="unit">m</div></div>
       <div class="field"><label>最高车速 umax</label><input type="number" id="umax" value="130"><div class="unit">km/h</div></div>
       <div class="field"><label>车型类别</label>
-        <select id="vehicleType">
+        <select id="vehicleType" onchange="updateVehicleStandards()">
           <option value="car" selected>乘用车 / 小型商用车（ma≤6t）</option>
           <option value="medium">中型商用车（6t~14t）</option>
           <option value="heavy">重型商用车（ma>14t）</option>
@@ -278,19 +300,8 @@ user-select: none
     <div class="btn-bar"><button class="btn btn-primary" onclick="calcAll()">✅ 更新所有计算</button></div>
   </div>
   <div class="card">
-    <div class="card-title"><span class="icon">📋</span>推荐参数范围（乘用车）</div>
-    <table class="result-table">
-      <tr><th>参数</th><th>乘用车推荐范围</th><th>依据</th></tr>
-      <tr><td>后备系数 β</td><td>1.10 ～ 1.75</td><td>《汽车设计》P59 表2-1</td></tr>
-      <tr><td>单位压力 p₀（无石棉有机材料）</td><td>0.15 ～ 0.30 MPa</td><td>《汽车设计》P60 表2-2</td></tr>
-      <tr><td>摩擦因数 f（无石棉有机材料）</td><td>0.25 ～ 0.30</td><td>《汽车设计》P61 表2-4</td></tr>
-      <tr><td>直径系数 KD（乘用车）</td><td>14.6</td><td>《汽车设计》P60 表2-3</td></tr>
-      <tr><td>内外径比 c = d/D</td><td>0.53 ～ 0.70</td><td>《汽车设计》P61</td></tr>
-      <tr><td>最大圆周速度 vD</td><td>≤ 65～70 m/s</td><td>《汽车设计》P61</td></tr>
-      <tr><td>单位摩擦面积滑磨功 w</td><td>≤ 0.20 J/mm²（乘用车）</td><td>《汽车设计》P62</td></tr>
-      <tr><td>踏板力 Ff（乘用车）</td><td>80 ～ 150 N</td><td>《汽车设计》操纵机构</td></tr>
-      <tr><td>踏板行程 S（乘用车）</td><td>80 ～ 150 mm</td><td>《汽车设计》操纵机构</td></tr>
-    </table>
+    <div class="card-title"><span class="icon">📋</span><span id="recommendTitle">推荐参数范围（乘用车）</span></div>
+    <table class="result-table" id="recommendTable"></table>
   </div>
 </div>
 
@@ -307,7 +318,7 @@ user-select: none
           </select>
           <div class="unit" id="springTypeNote" style="color:#1a4a8a;font-size:11px;margin-top:3px">拉式：分离轴承向外拉分离指；杠杆比范围 0.222～0.435</div>
         </div>
-        <div class="field" style="margin-bottom:10px"><label>后备系数 β（乘用车 1.10～1.75）</label><input type="number" id="beta" value="1.2" step="0.01"></div>
+        <div class="field" style="margin-bottom:10px"><label id="betaLabel">后备系数 β（乘用车 1.10～1.75）</label><input type="number" id="beta" value="1.2" step="0.01"></div>
         <div class="field" style="margin-bottom:10px"><label>单位压力 p₀（MPa）</label><input type="number" id="p0" value="0.30" step="0.01"></div>
         <div class="field" style="margin-bottom:10px"><label>摩擦因数 f</label><input type="number" id="f" value="0.25" step="0.01"></div>
         <div class="field" style="margin-bottom:10px"><label>摩擦面数 Z（单片=2，双片=4）</label>
@@ -505,7 +516,7 @@ user-select: none
   <div class="card">
     <div class="card-title"><span class="icon">🔩</span>扭转减振器参数设计</div>
     <div class="grid3">
-      <div class="field"><label>极限转矩系数（乘用车=2.0）</label><input type="number" id="Tj_coef" value="2.0" step="0.1"></div>
+      <div class="field"><label id="TjCoefLabel">极限转矩系数（乘用车=2.0）</label><input type="number" id="Tj_coef" value="2.0" step="0.1"></div>
       <div class="field"><label>扭转刚度 kδ (N·m/rad)&nbsp;<span style="color:var(--ok);font-size:11px;font-weight:400">参考上限 ≤ 13×Tⱼ = <span id="kd_ref_hint">—</span> N·m/rad</span></label><input type="number" id="k_delta" value="2300"></div>
       <div class="field"><label>阻尼转矩系数（0.06～0.17）</label><input type="number" id="Tu_coef" value="0.12" step="0.01"></div>
       <div class="field"><label>预紧转矩系数（0.05～0.15）</label><input type="number" id="Tn_coef" value="0.10" step="0.01"></div>
@@ -728,10 +739,10 @@ user-select: none
       <tr id="check_D"><td>摩擦片外径 D（经验公式）</td><td>KD×√Temax</td><td id="chk_D">—</td><td id="chk_D_v">—</td></tr>
       <tr id="check_c"><td>内外径比 c = d/D</td><td>0.53～0.70</td><td id="chk_c">—</td><td id="chk_c_v">—</td></tr>
       <tr id="check_vD"><td>最大圆周速度 vD</td><td>≤ 65～70 m/s</td><td id="chk_vD">—</td><td id="chk_vD_v">—</td></tr>
-      <tr id="check_w"><td>单位滑磨功 w</td><td>≤ 0.20 J/mm²</td><td id="chk_w">—</td><td id="chk_w_v">—</td></tr>
-      <tr id="check_Tj"><td>极限转矩 Tⱼ（乘用车）</td><td>= 2.0×Temax</td><td id="chk_Tj">—</td><td id="chk_Tj_v">—</td></tr>
+      <tr id="check_w"><td>单位滑磨功 w</td><td id="check_w_std">≤ 0.20 J/mm²</td><td id="chk_w">—</td><td id="chk_w_v">—</td></tr>
+      <tr id="check_Tj"><td id="check_Tj_name">极限转矩 Tⱼ（乘用车）</td><td id="check_Tj_std">= 2.0×Temax</td><td id="chk_Tj">—</td><td id="chk_Tj_v">—</td></tr>
       <tr id="check_lever"><td>膜片弹簧杠杆比 (R₁-r₁)/(r₁-rf)</td><td>0.222～0.435</td><td id="chk_lever">—</td><td id="chk_lever_v">—</td></tr>
-      <tr id="check_Ff"><td>踏板力 Ff</td><td>80～150 N（乘用车）</td><td id="chk_Ff">—</td><td id="chk_Ff_v">—</td></tr>
+      <tr id="check_Ff"><td>踏板力 Ff</td><td id="check_Ff_std">≤ 150 N（乘用车）</td><td id="chk_Ff">—</td><td id="chk_Ff_v">—</td></tr>
       <tr id="check_sigma_p"><td>花键挤压应力 σ_p</td><td>≤ 30 MPa</td><td id="chk_sigma_p">—</td><td id="chk_sigma_p_v">—</td></tr>
       <tr id="check_tau_s"><td>花键剪切应力 τ_s</td><td>≤ 15 MPa</td><td id="chk_tau_s">—</td><td id="chk_tau_s_v">—</td></tr>
     </table>
@@ -841,6 +852,48 @@ const state = {
 
 function getN(id) { return parseFloat(document.getElementById(id).value) || 0; }
 function getS(id) { return document.getElementById(id).value; }
+
+// 车型专用标准。数值依据《汽车设计》第5版第2章：表2-1、表2-3及式(2-13)、(2-19)、(2-32)。
+function getVehicleStandard() {
+  const type = getS('vehicleType');
+  if (type === 'heavy') return {
+    type, name:'重型商用车', betaMin:1.50, betaMax:2.25,
+    kdText:'22.5 ～ 24.0', kdMin:22.5, kdMax:24.0, wMax:0.25, vDMax:50, tjCoef:1.5
+  };
+  if (type === 'medium') return {
+    type, name:'中型商用车', betaMin:1.50, betaMax:2.25,
+    kdText:'单片 16.0 ～ 18.5；双片 13.5 ～ 15.0', kdMin:13.5, kdMax:18.5, wMax:0.25, vDMax:70, tjCoef:1.5
+  };
+  return {
+    type, name:'乘用车', betaMin:1.10, betaMax:1.75,
+    kdText:'14.6', kdMin:14.6, kdMax:14.6, wMax:0.20, vDMax:70, tjCoef:2.0
+  };
+}
+
+function updateVehicleStandards() {
+  const s = getVehicleStandard();
+  const commercial = s.type !== 'car';
+  document.getElementById('recommendTitle').textContent = `推荐参数范围（${commercial ? '商用车' : '乘用车'}）`;
+  document.getElementById('betaLabel').textContent = `后备系数 β（${s.name} ${s.betaMin.toFixed(2)}～${s.betaMax.toFixed(2)}）`;
+  document.getElementById('TjCoefLabel').textContent = `极限转矩系数（${s.name}=${s.tjCoef.toFixed(1)}）`;
+  document.getElementById('check_w_std').textContent = `≤ ${s.wMax.toFixed(2)} J/mm²（${s.name}）`;
+  document.getElementById('check_Tj_name').textContent = `极限转矩 Tⱼ（${s.name}）`;
+  document.getElementById('check_Tj_std').textContent = `= ${s.tjCoef.toFixed(1)}×Temax`;
+  document.getElementById('check_Ff_std').textContent = `≤ 150 N（${s.name}）`;
+  const kdNote = s.type === 'heavy' ? '重型商用车' : (s.type === 'medium' ? '中型商用车' : '乘用车');
+  document.getElementById('recommendTable').innerHTML = `
+    <tr><th>参数</th><th>${commercial ? '商用车' : '乘用车'}推荐范围</th><th>依据</th></tr>
+    <tr><td>后备系数 β</td><td>${s.betaMin.toFixed(2)} ～ ${s.betaMax.toFixed(2)}${s.type === 'heavy' ? '（挂车可取 1.80 ～ 4.00）' : ''}</td><td>《汽车设计》P59 表2-1</td></tr>
+    <tr><td>单位压力 p₀（无石棉有机材料）</td><td>0.15 ～ 0.30 MPa</td><td>《汽车设计》P60 表2-2</td></tr>
+    <tr><td>摩擦因数 f（无石棉有机材料）</td><td>0.25 ～ 0.30</td><td>《汽车设计》P61 表2-4</td></tr>
+    <tr><td>直径系数 KD（${kdNote}）</td><td>${s.kdText}</td><td>《汽车设计》P60 表2-3</td></tr>
+    <tr><td>内外径比 c = d/D</td><td>0.53 ～ 0.70</td><td>《汽车设计》P61</td></tr>
+    <tr><td>最大圆周速度 vD</td><td>≤ ${s.vDMax} m/s</td><td>《汽车设计》P61 式2-13</td></tr>
+    <tr><td>单位摩擦面积滑磨功 w</td><td>≤ ${s.wMax.toFixed(2)} J/mm²（${commercial ? '商用车' : '乘用车'}）</td><td>《汽车设计》P62 式2-19</td></tr>
+    <tr><td>踏板力 Ff（${commercial ? '商用车' : '乘用车'}）</td><td>≤ 150 N</td><td>《汽车设计》操纵机构</td></tr>
+    <tr><td>踏板行程 S（${commercial ? '商用车' : '乘用车'}）</td><td>80 ～ 150 mm</td><td>《汽车设计》操纵机构</td></tr>`;
+  if (document.readyState !== 'loading') calcAll();
+}
 
 function fmt(v, n=3) { return isNaN(v) ? '—' : parseFloat(v.toFixed(n)).toString(); }
 
@@ -986,6 +1039,7 @@ function calcBasic() {
 // ========== CALC VERIFY ==========
 function calcVerify() {
   calcBasic();
+  const vs = getVehicleStandard();
   const Temax = getN('Temax'), beta = getN('beta'), f = getN('f'), Z = getN('Z');
   const D = getN('D'), d = getN('d'), nemax = getN('nemax'), p0 = getN('p0');
   const ma = getN('ma'), i1 = getN('i1'), i0 = getN('i0'), r_w = getN('r_wheel');
@@ -1033,9 +1087,9 @@ function calcVerify() {
       no: '1', name: '摩擦片最大圆周速度 vD',
       formula: `π × ${D}mm × ${nemax}r/min / 60`,
       value: `${fmt(vD,2)} m/s`,
-      limit: '≤ 65～70 m/s',
-      ok: vD <= 70,
-      detail: vD > 70 ? `⚠ 超过70 m/s，需减小D或降低转速` : (vD > 65 ? '△ 超过65 m/s，接近上限' : '')
+      limit: `≤ ${vs.vDMax} m/s（${vs.name}）`,
+      ok: vD <= vs.vDMax,
+      detail: vD > vs.vDMax ? `⚠ 超过${vs.vDMax} m/s，需减小D或降低转速` : (vs.vDMax === 70 && vD > 65 ? '△ 超过65 m/s，接近上限' : '')
     },
     {
       no: '2', name: '摩擦片内外径比 c = d/D',
@@ -1049,8 +1103,8 @@ function calcVerify() {
       no: '3', name: '后备系数 β（反算校核）',
       formula: `Tc（式2-7）/ Temax = ${fmt(Tc,2)} / ${Temax}`,
       value: `${fmt(Tc/Temax,4)}（初选 β=${beta}）`,
-      limit: '1.10 ～ 1.75（乘用车），且与初选β对比',
-      ok: (Tc/Temax) >= 1.10 && (Tc/Temax) <= 1.75,
+      limit: `${vs.betaMin.toFixed(2)} ～ ${vs.betaMax.toFixed(2)}（${vs.name}），且与初选β对比`,
+      ok: (Tc/Temax) >= vs.betaMin && (Tc/Temax) <= vs.betaMax,
       detail: (() => {
         const beta_calc = Tc / Temax;
         const diff = Math.abs(beta_calc - beta) / beta * 100;
@@ -1077,7 +1131,7 @@ function calcVerify() {
       no: '6', name: '单位压力 p₀',
       formula: `F/A = ${fmt(F,1)}/${fmt(A,1)}`,
       value: `${fmt(p0_calc,4)} MPa`,
-      limit: '0.15 ～ 0.30 MPa（乘用车）',
+      limit: `0.15 ～ 0.30 MPa（${vs.name}）`,
       ok: p0_calc >= 0.15 && p0_calc <= 0.30,
       detail: p0_calc < 0.15 ? '⚠ p₀偏低，需检查设计参数' : (p0_calc > 0.30 ? '⚠ p₀偏高，超出许用值' : '')
     },
@@ -1085,8 +1139,8 @@ function calcVerify() {
       no: '7', name: '单位摩擦面积滑磨功 w（简化公式）',
       formula: `W_simple/(Z×A) = ${fmt(W_simple,1)}/(${Z}×${fmt(A,0)})`,
       value: `${fmt(w_spec_simple,5)} J/mm²`,
-      limit: '≤ 0.20 J/mm²（乘用车）',
-      ok: w_spec_simple <= 0.20,
+      limit: `≤ ${vs.wMax.toFixed(2)} J/mm²（${vs.name}）`,
+      ok: w_spec_simple <= vs.wMax,
       detail: ''
     }
   ];
@@ -2139,6 +2193,7 @@ function updateDeltaGap() {
 }
 
 function calcControl() {
+  const vs = getVehicleStandard();
   const S1_input = getN('S1');
   const S0f = getN('S0f');
   const delta = getN('delta_gap');
@@ -2273,8 +2328,8 @@ function calcControl() {
         <td>F'/(iΣ×η) = ${noSpring ? '—' : Math.round(F_prime)}/(${fmt(i_total,4)}×${eta})${springWarn}</td>
         <td><strong style="font-size:15px">${noSpring ? '—' : fmt(Ff,2)}</strong></td>
         <td>N</td>
-        <td>80～150 N</td>
-        <td>${noSpring ? '<span class="badge badge-warn">需先算弹簧</span>' : (Ff > 150 ? '<span class="badge badge-err">✗ 超出上限</span>' : (Ff >= 80 ? '<span class="badge badge-ok">✓ 满足</span>' : '<span class="badge badge-warn">△ 偏小</span>'))}</td>
+        <td>≤ 150 N（${vs.name}）</td>
+        <td>${noSpring ? '<span class="badge badge-warn">需先算弹簧</span>' : (Ff > 150 ? '<span class="badge badge-err">✗ 超出上限</span>' : '<span class="badge badge-ok">✓ 满足</span>')}</td>
       </tr>
       <tr style="background:${WL > 0 ? (WL <= 30 ? '#f0fff4' : '#fdeaea') : '#fff8f0'}">
         <td><strong>分离离合器所做的功 WL（式2-44）</strong></td>
@@ -2559,6 +2614,7 @@ function downloadFile(content, filename, type) {
 // ══════════ 智能评分 ══════════
 function calcSmartScore() {
   const Temax = getN('Temax'), beta = getN('beta'), D = getN('D'), d = getN('d');
+  const vs = getVehicleStandard();
   const f = getN('f'), Z = getN('Z'), p0 = getN('p0'), nemax = getN('nemax');
   const KD = getN('KD');
   const c = d / D;
@@ -2568,13 +2624,13 @@ function calcSmartScore() {
 
   const items = [];
   // ─── 模块1：基本参数设计（20分）───
-  const beta_ok = beta >= 1.10 && beta <= 1.75;
-  const beta_score = beta_ok ? 5 : (beta >= 1.0 && beta <= 2.0 ? 2 : 0);
-  items.push({ cat:'基本参数设计', name:'后备系数 β', std:'1.10～1.75（乘用车）', val:fmt(beta,3), max:5, score:beta_score });
+  const beta_ok = beta >= vs.betaMin && beta <= vs.betaMax;
+  const beta_score = beta_ok ? 5 : (beta >= vs.betaMin-0.10 && beta <= vs.betaMax+0.10 ? 2 : 0);
+  items.push({ cat:'基本参数设计', name:'后备系数 β', std:`${vs.betaMin.toFixed(2)}～${vs.betaMax.toFixed(2)}（${vs.name}）`, val:fmt(beta,3), max:5, score:beta_score });
 
   const D_diff = Math.abs(D - D_est) / D_est;
   const D_score = D_diff <= 0.10 ? 5 : (D_diff <= 0.20 ? 3 : 0);
-  items.push({ cat:'基本参数设计', name:'摩擦片外径 D 选取', std:`KD×√Temax≈${fmt(D_est,1)}→标准值`, val:`${D} mm`, max:5, score:D_score });
+  items.push({ cat:'基本参数设计', name:'摩擦片外径 D 选取', std:`KD（${vs.kdText}）×√Temax≈${fmt(D_est,1)}→标准值`, val:`${D} mm`, max:5, score:D_score });
 
   const c_ok = c >= 0.53 && c <= 0.70;
   const c_score = c_ok ? 5 : (c >= 0.50 && c <= 0.73 ? 2 : 0);
@@ -2585,9 +2641,9 @@ function calcSmartScore() {
   items.push({ cat:'基本参数设计', name:'单位压力 p₀', std:'0.15～0.30 MPa', val:`${p0} MPa`, max:5, score:p0_score });
 
   // ─── 模块2：参数校核（20分）───
-  const vD_ok = vD <= 70;
+  const vD_ok = vD <= vs.vDMax;
   const vD_score = vD_ok ? 4 : 0;
-  items.push({ cat:'参数校核', name:'最大圆周速度 vD', std:'≤65～70 m/s', val:`${fmt(vD,2)} m/s`, max:4, score:vD_score });
+  items.push({ cat:'参数校核', name:'最大圆周速度 vD', std:`≤${vs.vDMax} m/s（${vs.name}）`, val:`${fmt(vD,2)} m/s`, max:4, score:vD_score });
 
   // 单位滑磨功 w — 与第②部分calcVerify保持完全相同的公式和参数来源
   const _ma = getN('ma'), _i1 = getN('i1'), _i0 = getN('i0'), _rw = getN('r_wheel');
@@ -2596,9 +2652,9 @@ function calcSmartScore() {
   const _v1 = 2*Math.PI*_ne/60 * _rw / (_i1*_i0);
   const _W  = 0.5*_ma*_v1*_v1;
   const w   = _W / (Z*_A);
-  const w_ok = w > 0 && w <= 0.20;
-  const w_score = w_ok ? 4 : (w > 0 && w <= 0.25 ? 2 : (w > 0 ? 0 : 2));
-  items.push({ cat:'参数校核', name:'单位滑磨功 w', std:'≤0.20 J/mm²', val: w>0?`${fmt(w,5)} J/mm²`:'未计算', max:4, score:w_score });
+  const w_ok = w > 0 && w <= vs.wMax;
+  const w_score = w_ok ? 4 : (w > 0 && w <= vs.wMax+0.05 ? 2 : (w > 0 ? 0 : 2));
+  items.push({ cat:'参数校核', name:'单位滑磨功 w', std:`≤${vs.wMax.toFixed(2)} J/mm²（${vs.name}）`, val: w>0?`${fmt(w,5)} J/mm²`:'未计算', max:4, score:w_score });
 
   const T0 = state.T0 || 0;
   const T0_ok = T0 > 0 && T0 <= 0.008;
@@ -2639,10 +2695,10 @@ function calcSmartScore() {
 
   // ─── 模块4：压盘与减振器（15分）───
   const Tj = state.Tj || 0;
-  const Tj_ref = 2.0 * Temax;
+  const Tj_ref = vs.tjCoef * Temax;
   const Tj_ok = Tj > 0 && Math.abs(Tj - Tj_ref)/Tj_ref <= 0.05;
   const Tj_score = Tj_ok ? 5 : (Tj > 0 && Math.abs(Tj-Tj_ref)/Tj_ref <= 0.15 ? 3 : (Tj > 0 ? 1 : 0));
-  items.push({ cat:'压盘与减振器', name:'极限转矩 Tⱼ = 2.0×Temax', std:`${fmt(Tj_ref,1)} N·m`, val:Tj>0?`${fmt(Tj,1)} N·m`:'未计算', max:5, score:Tj_score });
+  items.push({ cat:'压盘与减振器', name:`极限转矩 Tⱼ = ${vs.tjCoef.toFixed(1)}×Temax`, std:`${fmt(Tj_ref,1)} N·m（${vs.name}）`, val:Tj>0?`${fmt(Tj,1)} N·m`:'未计算', max:5, score:Tj_score });
 
   const Tu = state.Tu || 0;
   const Tu_ok = Tu >= 0.06*Temax && Tu <= 0.17*Temax;
@@ -2659,12 +2715,12 @@ function calcSmartScore() {
   const Ff = state.Ff || 0;
   const Ff_ok = Ff > 0 && Ff <= 150;
   const Ff_score = Ff_ok ? 5 : (Ff > 150 && Ff <= 180 ? 3 : (Ff > 180 ? 1 : 0));
-  items.push({ cat:'操纵机构', name:'踏板力 Ff', std:'≤150 N（乘用车）', val:Ff>0?`${fmt(Ff,1)} N`:'未计算', max:5, score:Ff_score });
+  items.push({ cat:'操纵机构', name:'踏板力 Ff', std:`≤150 N（${vs.name}）`, val:Ff>0?`${fmt(Ff,1)} N`:'未计算', max:5, score:Ff_score });
 
   const S_total = state.S_total || 0;
   const S_ok = S_total > 0 && S_total <= 150;
   const S_score = S_ok ? 5 : (S_total > 150 && S_total <= 170 ? 3 : (S_total > 170 ? 1 : 0));
-  items.push({ cat:'操纵机构', name:'踏板总行程 S', std:'≤150 mm', val:S_total>0?`${fmt(S_total,1)} mm`:'未计算', max:5, score:S_score });
+  items.push({ cat:'操纵机构', name:'踏板总行程 S', std:`≤150 mm（${vs.name}）`, val:S_total>0?`${fmt(S_total,1)} mm`:'未计算', max:5, score:S_score });
 
   const WL = state.WL || 0;
   const WL_ok = WL > 0 && WL <= 30;
@@ -2781,6 +2837,7 @@ function generateFinalReport() {
 // ══════════ 覆盖原 calcSummary 以触发评分 ══════════
 
 function updateSummaryChecks() {
+  const vs = getVehicleStandard();
   const Temax = getN('Temax'), beta = getN('beta'), D = getN('D');
   const KD = getN('KD');
   const D_est = KD * Math.sqrt(Temax);
@@ -2814,8 +2871,8 @@ function updateSummaryChecks() {
   upd('chk_D', `估算${fmt(D_est,1)} mm → 取${D} mm`, true);
   upd('chk_c', `c = ${fmt(c,3)}`, c>=0.53&&c<=0.70);
   upd('chk_vD', `${fmt(vD,2)} m/s`, vD<=70);
-  upd('chk_w', `${fmt(w_spec,5)} J/mm²`, w_spec<=0.20);
-  upd('chk_Tj', `${fmt(Tj,1)} N·m`, Math.abs(Tj - 2*Temax) < 1);
+  upd('chk_w', `${fmt(w_spec,5)} J/mm²`, w_spec<=vs.wMax);
+  upd('chk_Tj', `${fmt(Tj,1)} N·m`, Math.abs(Tj - vs.tjCoef*Temax) < 1);
   upd('chk_lever', lever > 0 ? `${fmt(lever,4)}` : '—', lever>=0.222&&lever<=0.435);
   upd('chk_Ff', Ff > 0 ? `${fmt(Ff,1)} N` : '—', !Ff || Ff <= 150);
   upd('chk_sigma_p', state.sigma_p > 0 ? `${fmt(state.sigma_p,2)} MPa` : '—', !state.sigma_p || state.sigma_p<=30);
@@ -2865,7 +2922,7 @@ function calcSummary() {
   document.getElementById('summaryTable').innerHTML = html;
 
   const checks = [
-    { name: '后备系数β', ok: beta >= 1.10 && beta <= 1.75 },
+    { name: '后备系数β', ok: beta >= getVehicleStandard().betaMin && beta <= getVehicleStandard().betaMax },
     { name: '内外径比c', ok: d/D >= 0.53 && d/D <= 0.70 },
     { name: '最大圆周速度vD', ok: Math.PI*D/1000*getN('nemax')/60 <= 70 },
     { name: '单位滑磨功w', ok: true }, // simplified
@@ -3001,6 +3058,7 @@ window.addEventListener('load', () => {
   document.getElementById('loginOverlay').style.display = 'flex';
 
   const restored = loadData();
+  updateVehicleStandards();
   calcAll();
   if (restored) {
     const toast = document.createElement('div');
@@ -3385,28 +3443,6 @@ function generateReportGradeFile() {
 }
 
 // ══════════════════════════════════════════════════════════
-document.addEventListener('contextmenu', e => e.preventDefault());
-document.addEventListener('keydown', e => {
-if (e.key === 'F12' || 
-(e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-(e.ctrlKey && e.key === 'U') ||
-(e.ctrlKey && e.key === 'S')) {
-e.preventDefault();
-return false;
-}
-});
-</script>
-<script>
-  document.addEventListener('contextmenu', e => e.preventDefault());
-  document.addEventListener('keydown', e => {
-    if (e.key === 'F12' || 
-        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-        (e.ctrlKey && e.key === 'U') ||
-        (e.ctrlKey && e.key === 'S')) {
-      e.preventDefault();
-      return false;
-    }
-  });
 </script>
 </body>
 </html>
